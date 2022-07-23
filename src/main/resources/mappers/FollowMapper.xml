@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nnon.server.mapper.FollowMapper">
+    <!--通过关注Id查找关注-->
+    <select id="selectFollow" resultType="Follow" parameterType="integer">
+        SELECT *
+        FROM tb_follow
+        WHERE id = #{id}
+    </select>
+    <!--查找所有关注-->
+    <select id="selectAllFollow" resultType="Follow">
+        SELECT *
+        FROM tb_follow
+    </select>
+    <!--通过条件查找所有关注-->
+    <select id="findFollow" resultType="Follow" parameterType="follow">
+        SELECT * FROM tb_follow
+        <where>
+            <if test="uid != null">
+                AND uid = #{uid}
+            </if>
+            <if test="followId != null">
+                AND follow_id = #{followId}
+            </if>
+            <if test="createTime != null">
+                AND create_time = #{createTime}
+            </if>
+            <if test="followUid != null">
+                AND follow_uid = #{followUid}
+            </if>
+
+        </where>
+    </select>
+    <!--增加关注-->
+    <insert id="addFollow" parameterType="com.nnon.server.pojo.Follow">
+        INSERT INTO tb_follow (uid, follow_uid, create_time)
+        VALUES (#{uid}, #{followUid}, #{createTime})
+    </insert>
+
+    <!--删除关注-->
+    <delete id="removeFollow" parameterType="follow" >
+        DELETE
+        FROM tb_follow
+        WHERE uid = #{uid} and follow_uid = #{followUid}
+    </delete>
+</mapper>

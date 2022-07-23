@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nnon.server.mapper.CommentMapper">
+    <insert id="addComment" parameterType="comment"  keyColumn="comment_id" keyProperty="commentId" useGeneratedKeys="true">
+        insert into tb_comment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="articleId!=null">article_id,</if>
+            <if test="uid!=null">uid,</if>
+            <if test="parentId!=null">parent_id,</if>
+            <if test="content!=null">content,</if>
+            <if test="createTime!=null">create_time,</if>
+            <if test="toUid!=null">to_uid,</if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="articleId!=null">#{articleId},</if>
+            <if test="uid!=null">#{uid},</if>
+            <if test="parentId!=null">#{parentId},</if>
+            <if test="content!=null">#{content},</if>
+            <if test="createTime!=null">#{createTime},</if>
+            <if test="toUid!=null">#{toUid},</if>
+        </trim>
+    </insert>
+
+
+
+    <select id="findComment" parameterType="comment" resultType="comment">
+        select * from tb_comment
+        <where>
+            <if test="commentId != null">
+                and comment_id = #{commentId}
+            </if>
+            <if test="uid != null">
+                and uid = #{uid}
+            </if>
+            <if test="createTimeRange != null">
+                and create_time between #{createTimeRange.[0]} and #{createTimeRange.[1]}
+            </if>
+            <if test="articleId != null">
+                and article_id = #{articleId}
+            </if>
+            <if test = "content != null">
+                and content like '%${content}%'
+            </if>
+            <if test="parentId != null">
+                and parent_id > #{parentId}
+            </if>
+            <if test="auditUid!=null">
+                and audit_uid = #{auditUid}
+            </if>
+            <if test="status!=null">
+                and status = #{status}
+            </if>
+            <if test="sortField!=null">
+                order by
+                <if test="sortField=='createTime'">create_time</if>
+                <if test="isReverse">
+                    desc
+                </if>
+            </if>
+        </where>
+
+    </select>
+    <select id="findCommentClassify" resultType="commentClassify">
+    select count(1) value , status from tb_comment group by status
+    </select>
+    <select id="getCommentCount"  resultType="integer">
+        select count(1) value from tb_comment
+    </select>
+    <select id="findArticleSevenDaysCount"  resultType="map">
+        SELECT
+        DATE_FORMAT( t.create_time, '%Y-%m-%d' ) days,
+        count(*) count
+        FROM
+        (
+        SELECT
+        *
+        FROM
+        tb_comment
+        WHERE
+        date_sub( curdate(), INTERVAL 7 DAY ) &lt;= date( create_time )) t
+        GROUP BY
+        t.create_time;
+    </select>
+    <select id="getCommentCountByArticleId" resultType="integer" parameterType="integer">
+        select count(1) value from tb_comment where article_id = #{articleId}
+    </select>
+</mapper>

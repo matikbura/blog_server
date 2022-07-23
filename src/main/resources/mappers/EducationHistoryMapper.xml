@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nnon.server.mapper.EducationHistoryMapper">
+
+    <select id="findEducationHistoryByUid" parameterType="integer" resultType="EducationHistory">
+        select *
+        from tb_education_history
+        where uid = #{uid}
+    </select>
+    <insert id="addEducationHistory" keyColumn="education_Id" keyProperty="educationId" parameterType="educationHistory"
+            useGeneratedKeys="true">
+        insert into tb_education_history
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="schoolName != null">
+                school_name,
+            </if>
+            <if test="profession != null">
+                profession,
+            </if>
+            <if test="enterTimeStr != null">
+                enterTimeStr,
+            </if>
+            <if test="education != null">
+                education,
+            </if>
+            <if test="uid != null">
+                uid,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="schoolName != null">
+                #{schoolName,jdbcType=VARCHAR},
+            </if>
+            <if test="profession != null">
+                #{profession,jdbcType=VARCHAR},
+            </if>
+            <if test="enterTimeStr != null">
+                #{enterTimeStr,jdbcType=VARCHAR},
+            </if>
+            <if test="education != null">
+                #{education,jdbcType=TIMESTAMP},
+            </if>
+            <if test="uid != null">
+                #{uid,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateEducationHistory" parameterType="educationHistory">
+        update tb_education_history
+        <set>
+            <if test="schoolName != null">
+                school_name = #{schoolName,jdbcType=INTEGER},
+            </if>
+            <if test="profession != null">
+                profession = #{profession,jdbcType=VARCHAR},
+            </if>
+            <if test="enterTimeStr != null">
+                enterTimeStr = #{enterTimeStr,jdbcType=VARCHAR},
+            </if>
+            <if test="education != null">
+                education = #{education,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where education_id=#{educationId}
+    </update>
+
+
+    <delete id="deleteEducationHistory" parameterType="EducationHistory">
+        delete from tb_education_history where education_id=#{educationId}
+    </delete>
+</mapper>

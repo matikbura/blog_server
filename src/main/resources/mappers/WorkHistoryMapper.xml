@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nnon.server.mapper.WorkHistoryMapper">
+
+
+    <!--通过uid查询-->
+    <select id="findWorkHistoryByUid" parameterType="integer" resultType="WorkHistory">
+        select *
+        from tb_work_history
+        where uid =#{uid}
+    </select>
+
+    <!--添加-->
+    <insert id="insertWorkHistory" keyColumn="work_id" keyProperty="workId" parameterType="WorkHistory"
+            useGeneratedKeys="true">
+        insert into tb_work_history
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyName != null">
+                company_name,
+            </if>
+            <if test="jobTitle != null">
+                job_title,
+            </if>
+            <if test="industry != null">
+                industry,
+            </if>
+            <if test="enterTime != null">
+                enter_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="companyName != null">
+                #{companyName,jdbcType=VARCHAR},
+            </if>
+            <if test="jobTitle != null">
+                #{jobTitle,jdbcType=VARCHAR},
+            </if>
+            <if test="industry != null">
+                #{industry,jdbcType=VARCHAR},
+            </if>
+            <if test="enterTime != null">
+                #{enterTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <!--通过主键修改-->
+    <update id="updateWorkHistoryById" parameterType="WorkHistory">
+        update tb_work_history
+        <set>
+            <if test="record.workId != null">
+                work_id = #{record.workId,jdbcType=INTEGER},
+            </if>
+            <if test="record.companyName != null">
+                company_name = #{record.companyName,jdbcType=VARCHAR},
+            </if>
+            <if test="record.jobTitle != null">
+                job_title = #{record.jobTitle,jdbcType=VARCHAR},
+            </if>
+            <if test="record.industry != null">
+                industry = #{record.industry,jdbcType=VARCHAR},
+            </if>
+            <if test="record.enterTime != null">
+                enter_time = #{record.enterTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where work_id={work_id}
+    </update>
+    <!--通过主键删除-->
+    <delete id="deleteWorkHistory" parameterType="integer">
+        delete
+        from tb_work_history
+        where work_id = #{work_id}
+    </delete>
+</mapper>

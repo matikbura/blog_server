@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nnon.server.mapper.ChatMapper">
+
+    <select id="findEducationHistoryByUid" parameterType="integer" resultType="string">
+        select DISTINCT(from_uid)  relationUId from tb_chat where to_uid=#{uid}
+        union
+        select DISTINCT(to_uid) relationUId from tb_chat where from_uid=#{uid}
+    </select>
+
+    <select id="findChatUid" parameterType="integer" resultType="integer">
+        select DISTINCT(from_uid)  relationUId from tb_chat where to_uid=#{uid}
+        union
+        select DISTINCT(to_uid) relationUId from tb_chat where from_uid=#{uid}
+    </select>
+
+    <select id="getLatestMessage" resultType="Chat">
+        SELECT * FROM `tb_chat` t where to_uid=#{personUid} and from_uid=#{otherUid}
+        UNION ALL
+        SELECT * FROM `tb_chat` t where to_uid=#{otherUid} and from_uid=#{personUid}
+        order by create_time desc LIMIT 0,1
+    </select>
+
+
+    <select id="unreadMessageCount" resultType="integer">
+        SELECT COUNT(1) FROM `tb_chat` t where to_uid=#{personUid} and from_uid=#{otherUid} and is_read=0
+    </select>
+    <select id="getConversationMessageByOtherUid" resultType="chat">
+        SELECT * FROM `tb_chat` t where to_uid=#{personUid} and from_uid=#{otherUid}
+        UNION ALL
+        SELECT * FROM `tb_chat` t where to_uid=#{otherUid} and from_uid=#{personUid}
+        order by create_time
+    </select>
+
+    <insert id="insertChat" keyColumn="chat_id" keyProperty="chatId" useGeneratedKeys="true" parameterType="chat">
+        insert into tb_chat(from_uid, to_uid, is_read,create_time,context)
+        values (#{fromUid}, #{toUid}, #{isRead},#{createTime},#{context})
+    </insert>
+
+    <update id="updateChat" parameterType="chat">
+        update tb_chat
+        <set>
+            <if test="isRead != null">
+                is_read = #{isRead,jdbcType=INTEGER},
+            </if>
+        </set>
+        where chat_id=#{chatId}
+    </update>
+    <update id="setIsReadTrueByOtherUid" >
+        update tb_chat s set s.is_read="1" where s.chat_id in
+       <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+        #{item}
+        </foreach>
+    </update>
+    <select id="getIReadFalse" resultType="string">
+        SELECT t.chat_id FROM `tb_chat` t where t.to_uid=#{personUid} and t.from_uid=#{otherUid} and t.is_read="0"
+    </select>
+</mapper>

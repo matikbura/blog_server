@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nnon.server.mapper.NotifyMapper">
+    <!--    添加通知-->
+    <insert id="addNotify" parameterType="notify">
+        insert into tb_notify(title, content, create_time, modify_time, cover_url, admin_id)
+        values (#{title}, #{content}, #{createTime}, #{modifyTime}, #{coverUrl}, #{adminId})
+    </insert>
+    <!--    查找通知-->
+    <select id="findNotify" parameterType="notify" resultType="notify">
+        select * from tb_notify
+        <where>
+            <if test="title != null">
+                and title like '%${title}%'
+            </if>
+            <if test="content != null">
+                and content = #{content}
+            </if>
+            <if test="createTimeRange != null">
+                and create_time between #{createTimeRange.[0]} and #{createTimeRange.[1]}
+            </if>
+            <if test="modifyTimeRange != null">
+                and modify_time between #{modifyTimeRange.[0]} and #{modifyTimeRange.[1]}
+            </if>
+            <if test="coverUrl != null">
+                and cover_url = #{coverUrl}
+            </if>
+            <if test="adminId != null">
+                and admin_id = #{adminId}
+            </if>
+        </where>
+    </select>
+    <select id="findNotifyByNotifyId" parameterType="notify" resultType="notify">
+        select *
+        from tb_notify
+        where notify_id = #{notifyId}
+    </select>
+    <update id="updateNotify" parameterType="notify">
+        update tb_notify
+        <set>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="content != null">
+                content = #{content},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime},
+            </if>
+            <if test="coverUrl != null">
+                cover_url = #{coverUrl},
+            </if>
+            <if test="viewCount != null">
+                view_count = #{viewCount},
+            </if>
+            <if test="likeCount != null">
+                like_count = #{likeCount},
+            </if>
+        </set>
+        where notify_id = #{notifyId}
+    </update>
+    <delete id="deleteNotify"  parameterType="notify">
+        delete from tb_notify
+        where notify_id = #{notifyId}
+    </delete>
+</mapper>

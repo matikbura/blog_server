@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nnon.server.mapper.FeedbackMapper">
+    <select id="findFeedbackSevenDaysCount" resultType="map">
+        SELECT
+            DATE_FORMAT( t.create_time, '%Y-%m-%d' ) days,
+            count(*) count
+        FROM
+            (
+            SELECT
+            *
+            FROM
+            tb_feedback
+            WHERE
+            date_sub( curdate(), INTERVAL 7 DAY ) &lt;= date( create_time )) t
+        GROUP BY
+            t.create_time;
+    </select>
+    <insert id="addFeedback"    parameterType="com.nnon.server.pojo.Feedback">
+        INSERT INTO tb_feedback(
+            feedback_id,
+            feedback_type,
+            contact,
+            file_url,
+            plan,
+            descript,
+            create_time,
+            status
+        )
+        VALUES(
+            #{feedbackId},
+            #{feedbackType},
+            #{contact},
+            #{fileUrl},
+            #{plan},
+            #{descript},
+            #{createTime},
+            #{status}
+        )
+    </insert>
+    <select id="findFeedback"  resultType="com.nnon.server.pojo.Feedback">
+        SELECT
+            *
+        FROM
+            tb_feedback
+        <where>
+            <if test="feedbackId != null">
+                feedback_id = #{feedbackId}
+            </if>
+            <if test="feedbackType != null">
+                AND feedback_type = #{feedbackType}
+            </if>
+            <if test="contact != null">
+                AND contact = #{contact}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="createTimeRange != null">
+                and create_time between #{createTimeRange.[0]} and #{createTimeRange.[1]}
+            </if>
+        </where>
+    </select>
+    <update id="updateFeedback" parameterType="com.nnon.server.pojo.Feedback">
+        UPDATE tb_feedback
+        <set>
+            <if test="feedbackType != null">
+                feedback_type = #{feedbackType},
+            </if>
+            <if test="contact != null">
+                contact = #{contact},
+            </if>
+            <if test="fileUrl != null">
+                file_url = #{fileUrl},
+            </if>
+            <if test="plan != null">
+                plan = #{plan},
+            </if>
+            <if test="descript != null">
+                descript = #{descript},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        WHERE
+            feedback_id = #{feedbackId}
+    </update>
+</mapper>

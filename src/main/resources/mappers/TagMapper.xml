@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nnon.server.mapper.TagMapper">
+    <sql id="query_param">
+
+    </sql>
+
+    <!--查找所有分类-->
+    <select id="findTagByClassifyId" resultType="tag" parameterType="integer">
+        select *
+        from tb_tag where classify_id = #{classify_id}
+    </select>
+    <select id="findTagByTagId" resultType="tag" parameterType="integer">
+        select * from tb_tag where tag_id=#{tagId}
+    </select>
+    <select id="findTag" parameterType="tag" resultType="tag">
+        select * from tb_tag
+        <where>
+            <if test="tagId!=null">
+               and tag_id=tagId
+            </if>
+            <if test="name!=null">
+                and name like '%${name}%'
+            </if>
+            <if test="createTimeRange != null">
+                and create_time between #{createTimeRange.[0]} and #{createTimeRange.[1]}
+            </if>
+            <if test="modifyTimeRange != null">
+                and modify_time between #{modifyTimeRange.[0]} and #{modifyTimeRange.[1]}
+            </if>
+            <if test="tabColor!=null">
+                and tab_color=tabColor
+            </if>
+        </where>
+    </select>
+    <select id="getTagCount"  resultType="int">
+        select count(1) from tb_tag
+    </select>
+    <select id="findAllTag" resultType="tag">
+        select * from tb_tag
+    </select>
+    <insert id="addTag" parameterType="tag">
+        insert into tb_tag(name,tab_color,create_time,modify_time,classify_id)
+        values(#{name},#{tabColor},#{createTime},#{modifyTime},#{classifyId})
+    </insert>
+    <update id="updateTag" parameterType="tag">
+        update tb_tag set name=#{name},tab_color=#{tabColor},modify_time=#{modifyTime},classify_id=#{classifyId}
+        where tag_id=#{tagId}
+    </update>
+    <delete id="deleteTag" parameterType="integer">
+        delete from tb_tag where tag_id=#{tagId}
+    </delete>
+</mapper>

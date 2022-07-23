@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nnon.server.mapper.ArticleMapper">
+    <insert id="addArticle" parameterType="article" keyColumn="article_id" keyProperty="articleId"
+            useGeneratedKeys="true">
+        insert into tb_article(title, content, cover_url, describes, create_time, uid, modify_time, status)
+        values (#{title}, #{content}, #{coverUrl}, #{describes}, #{createTime}, #{uid}, #{modifyTime}, #{status})
+    </insert>
+    <select id="findArticle" parameterType="article" resultType="article">
+        select * from tb_article
+        <where>
+            <if test="articleId != null">
+                and article_id = #{articleId}
+            </if>
+            <if test="uid != null">
+                and uid = #{uid}
+            </if>
+            <if test="title != null">
+                and title like '%${title}%'
+            </if>
+            <if test="describes != null">
+                and describes like '%${describes}%'
+            </if>
+            <if test="createTimeRange!=null">
+                and a.create_time &gt;= #{createTimeRange.[0]} and a.create_time &lt;= #{createTimeRange.[1]}
+            </if>
+            <if test="modifyTimeRange!=null">
+                and a.modify_time &gt;= #{modifyTimeRange.[0]} and a.modify_time &lt;= #{modifyTimeRange.[1]}
+            </if>
+            <if test="status!=null">
+                and status = #{status}
+            </if>
+            <if test="sortField!=null">
+                order by
+                <if test="sortField=='commonCount'">common_count</if>
+                <if test="sortField=='collectCount'">collect_count</if>
+                <if test="sortField=='createTime'">create_time</if>
+                <if test="sortField=='commonCount'">modify_time</if>
+                <if test="sortField=='viewCount'">view_count</if>
+                <if test="sortField=='collectCount'">collect_count</if>
+                <if test="isReverse!=null">
+                    desc
+                </if>
+            </if>
+        </where>
+
+    </select>
+    <select id="findArticleByTag" parameterType="article" resultType="article">
+        select * from tb_article where article_id in
+        (select DISTINCT a.article_id from tb_article a left JOIN tb_article_tag_relation atr on
+        a.article_id=atr.article_id LEFT JOIN tb_tag tag on atr.tag_id=tag.tag_id left join tb_classify classify on
+        tag.classify_id=classify.classify_id
+        <where>
+            <if test="articleId != null">
+                and a.article_id = #{articleId}
+            </if>
+            <if test="uid != null">
+                and uid = #{uid}
+            </if>
+            <if test="title != null">
+                and a.title like '%${title}%'
+            </if>
+            <if test="describes != null">
+                and a.describes like '%${describes}%'
+            </if>
+            <if test="createTimeRange!=null">
+                and a.create_time &gt;= #{createTimeRange.[0]} and a.create_time &lt;= #{createTimeRange.[1]}
+            </if>
+            <if test="modifyTimeRange!=null">
+                and a.modify_time &gt;= #{modifyTimeRange.[0]} and a.modify_time &lt;= #{modifyTimeRange.[1]}
+            </if>
+            <if test="status!=null">
+                and status = #{status}
+            </if>
+            <if test="tag.classifyId!=null">
+                and tag.classify_id=#{tag.classifyId}
+            </if>
+            <if test="tag.tagId!=null">
+                and tag.tag_id=#{tag.tagId}
+            </if>
+
+        </where>
+        )
+        <if test="sortField!=null">
+            order by
+            <if test="sortField=='commonCount'">common_count</if>
+            <if test="sortField=='collectCount'">collect_count</if>
+            <if test="sortField=='createTime'">create_time</if>
+            <if test="sortField=='commonCount'">modify_time</if>
+            <if test="sortField=='viewCount'">view_count</if>
+            <if test="sortField=='collectCount'">collect_count</if>
+            <if test="isReverse!=null">
+                desc
+            </if>
+        </if>
+    </select>
+    <update id="updateArticle" parameterType="article">
+        update tb_article
+        <set>
+            <if test="title!=null">
+                title=#{title},
+            </if>
+            <if test="coverUrl!=null">
+                cover_url=#{coverUrl},
+            </if>
+            <if test="describes!=null">
+                describes=#{describes},
+            </if>
+            <if test="auditId!=null">
+                audit_id=#{auditId},
+            </if>
+            <if test="auditMessage!=null">
+                audit_message=#{auditMessage},
+            </if>
+            <if test="releaseTime!=null">
+                release_time=#{releaseTime},
+            </if>
+            <if test="status!=null">
+                status=#{status},
+            </if>
+            <if test="modifyTime!=null">
+                modify_time=#{modifyTime},
+            </if>
+            <if test="commonCount!=null">
+                common_count=#{commonCount},
+            </if>
+            <if test="collectCount!=null">
+                collect_count=#{collectCount},
+            </if>
+            <if test="viewCount!=null">
+                view_count=#{viewCount},
+            </if>
+        </set>
+        where article_id=#{articleId}
+    </update>
+    <delete id="deleteArticle" parameterType="article">
+        delete
+        from tb_article
+        where article_id = #{articleId}
+    </delete>
+    <select id="findArticleByArticleId" parameterType="integer" resultType="article">
+        select *
+        from tb_article
+        where article_id = #{articleId}
+    </select>
+    <select id="findArticleClassify" resultType="ArticleClassify">
+        SELECT count(1) value,`status`
+        FROM `tb_article` t
+        GROUP BY status
+    </select>
+    <select id="getArticleCount" resultType="Integer">
+        select count(1)
+        from tb_article
+    </select>
+    <select id="findArticleSevenDaysCount" resultType="map">
+        SELECT DATE_FORMAT(t.create_time, '%Y-%m-%d') days,
+               count(*) count
+        FROM
+            (
+            SELECT
+            *
+            FROM
+            tb_article
+            WHERE
+            date_sub( curdate(), INTERVAL 7 DAY ) &lt;= date ( create_time )) t
+        GROUP BY
+            t.create_time;
+    </select>
+</mapper>

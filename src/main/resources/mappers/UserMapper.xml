@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nnon.server.mapper.UserMapper">
+    <select id="login" parameterType="com.nnon.server.pojo.User" resultType="User">
+        select *
+        from tb_user
+        where username = #{username}
+          and password = #{password}
+    </select>
+
+    <select id="findUserByUsername" parameterType="string" resultType="User">
+        select *
+        from tb_user
+        where username = #{username}
+    </select>
+
+    <insert id="register" parameterType="com.nnon.server.pojo.User" useGeneratedKeys="true" keyProperty="uid">
+        insert
+        into tb_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           <if test="username != null">
+               username,
+           </if>
+           <if test="password != null">
+               password,
+           </if>
+           <if test="email != null">
+               email,
+           </if>
+           <if test="phone != null">
+               phone,
+           </if>
+           <if test="address != null">
+               address,
+           </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           <if test="username != null">
+               #{username},
+           </if>
+           <if test="password != null">
+               #{password},
+           </if>
+           <if test="email != null">
+               #{email},
+           </if>
+           <if test="phone != null">
+               #{phone},
+           </if>
+           <if test="address != null">
+               #{address},
+           </if>
+        </trim>
+    </insert>
+
+    <select id="findUserByUid" parameterType="integer" resultType="User">
+        select *
+        from tb_user
+        where uid = #{uid}
+    </select>
+
+    <update id="updateUser" parameterType="User">
+        update tb_user
+        <set>
+            <if test="username != null">
+                username = #{username,jdbcType=INTEGER},
+            </if>
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="name!= null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                sex = #{sex,jdbcType=VARCHAR},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime},
+            </if>
+            <if test="nativePlace != null">
+                native_place = #{nativePlace,jdbcType=VARCHAR},
+            </if>
+            <if test="addressStr != null">
+                addressStr = #{addressStr,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                phone = #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="qq != null">
+                qq = #{qq,jdbcType=VARCHAR},
+            </if>
+            <if test="vx != null">
+                vx = #{vx,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="lastLoginTime != null">
+                last_login_time = #{lastLoginTime},
+            </if>
+        </set>
+        where uid=#{uid}
+    </update>
+
+    <select id="findUser" parameterType="user" resultType="user">
+        select * from tb_user
+        <where>
+            <if test="uid">
+                and uid = #{uid}
+            </if>
+            <if test="username">
+                and username = #{username}
+            </if>
+            <if test="password">
+                and password = #{password}
+            </if>
+            <if test="name">
+                and name like '%${name}%'
+            </if>
+            <if test="sex">
+                and sex = #{sex}
+            </if>
+            <if test="createTimeRange != null">
+                and create_time between #{createTimeRange.[0]} and #{createTimeRange.[1]}
+            </if>
+            <if test="modifyTimeRange != null">
+                and modify_time between #{modifyTimeRange.[0]} and #{modifyTimeRange.[1]}
+            </if>
+            <if test="lastLoginTimeRange != null">
+                and last_login_time between #{lastLoginTimeRange.[0]} and #{lastLoginTimeRange.[1]}
+            </if>
+            <if test="nativePlace">
+                and native_place = #{nativePlace}
+            </if>
+            <if test="nativePlace">
+                and native_place = #{nativePlace}
+            </if>
+            <if test="addressStr">
+                and address_str = #{addressStr}
+            </if>
+            <if test="phone">
+                and phone = #{phone}
+            </if>
+            <if test="qq">
+                and qq = #{qq}
+            </if>
+            <if test="vx">
+                and vx = #{vx}
+            </if>
+            <if test="email">
+                and email = #{email}
+            </if>
+            <if test="birthday">
+                and birthday = #{birthday}
+            </if>
+        </where>
+    </select>
+    <select id="findUserByFuzzy" parameterType="user" resultType="user">
+        select * from tb_user
+        <where>
+            <if test="username!=null">
+                or username like '%${username}%'
+            </if>
+            <if test="name!=null">
+                or name like '%${name}%'
+            </if>
+            <if test="introduce!=null">
+                or introduce like '%${introduce}%'
+            </if>
+        </where>
+    </select>
+
+
+    <select id="findUserBanCount" resultType="integer">
+        select count(1)
+        from tb_user
+        where status = 1
+    </select>
+    <select id="findUserLoginCount" resultType="integer">
+        select count(1)
+        FROM tb_user t
+        where status = 0
+          AND t.last_login_time > DATE_SUB(NOW(), INTERVAL 3 DAY)
+    </select>
+    <select id="findUserCount" resultType="integer">
+        select count(1)
+        from tb_user
+    </select>
+    <select id="findArticleSevenDaysCount" resultType="map">
+        SELECT DATE_FORMAT(t.create_time, '%Y-%m-%d') days,
+               count(*) count
+        FROM
+            (
+            SELECT
+            *
+            FROM
+            tb_user
+            WHERE
+            date_sub( curdate(), INTERVAL 7 DAY ) &lt;= date ( create_time )) t
+        GROUP BY
+            t.create_time;
+    </select>
+</mapper>

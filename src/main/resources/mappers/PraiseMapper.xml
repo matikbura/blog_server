@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nnon.server.mapper.PraiseMapper">
+    <insert id="addPraise" parameterType="com.nnon.server.pojo.Praise">
+        INSERT INTO tb_praise (uid,article_id, praise_type, create_time)
+        VALUES (#{uid},#{articleId},#{praiseType}, #{createTime})
+    </insert>
+    <update id="cancelPraise" parameterType="com.nnon.server.pojo.Praise">
+        UPDATE tb_praise SET praise_type = #{praiseType} WHERE praise_id = #{praiseId}
+    </update>
+    <select id="getPraiseByUserIdAndArticleId" resultType="com.nnon.server.pojo.Praise">
+        SELECT * FROM tb_praise WHERE uid = #{uid} AND article_id = #{articleId}
+    </select>
+    <update id="updatePraise" parameterType="com.nnon.server.pojo.Praise">
+        UPDATE tb_praise
+        SET praise_type = #{praiseType}
+        WHERE praise_id = #{praiseId}
+    </update>
+    <select id="getPraiseCountByArticleId" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM tb_praise WHERE article_id = #{articleId} and praise_type = 1
+    </select>
+    <select id="getUnPraiseCountByArticleId" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM tb_praise WHERE article_id = #{articleId} and praise_type = 0
+    </select>
+    <select id="findPraise" resultType="com.nnon.server.pojo.Praise">
+        SELECT * FROM tb_praise
+        <where>
+            <if test="praiseId != null">
+                AND praise_id = #{praiseId}
+            </if>
+            <if test="uid != null">
+                AND uid = #{uid}
+            </if>
+            <if test="articleId != null">
+                AND article_id = #{articleId}
+            </if>
+            <if test="praiseType != null">
+                AND praise_type = #{praiseType}
+            </if>
+        </where>
+    </select>
+    <delete id="deletePraise"  parameterType="com.nnon.server.pojo.Praise">
+        DELETE FROM tb_praise WHERE praise_id = #{praiseId}
+    </delete>
+</mapper>
